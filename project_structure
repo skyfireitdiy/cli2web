@@ -1,0 +1,14 @@
+cli2web/
+├── cli2web/
+│   ├── __init__.py
+│   ├── cli_parser.py      # CLI解析模块
+│   ├── web_generator.py   # Web界面生成模块
+│   ├── process_manager.py # 进程管理模块
+│   ├── web_server.py      # Web服务器模块
+│   └── templates/         # HTML模板目录
+│       ├── base.html
+│       └── cli_form.html
+├── tests/
+│   └── __init__.py
+├── README.md
+└── setup.py 
