@@ -1,11 +1,13 @@
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, PackageLoader, select_autoescape
 from typing import List
 from .cli_parser import CommandOption
+import os
 
 class WebGenerator:
     def __init__(self):
         self.env = Environment(
-            loader=FileSystemLoader('cli2web/templates')
+            loader=PackageLoader('cli2web', 'templates'),
+            autoescape=select_autoescape(['html', 'xml'])
         )
         
     def generate_form(self, command_name: str, options: List[CommandOption]) -> str:
