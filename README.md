@@ -5,40 +5,55 @@ CLI2Web 是一个将命令行工具转换为 Web 界面的工具。它能自动�
 ## 特性
 
 - 自动解析命令行程序的帮助信息
+  - 优先使用 man 手册进行解析
+  - 支持短选项和长选项组合（如 -a, --all）
+  - 智能识别选项参数类型（文本、数字、选择列表等）
+  - 自动提取选项的有效值列表
+  - 正确处理多行选项描述
+  - 支持中英文帮助文档
 - 生成友好的 Web 界面
+  - 根据选项类型生成对应的表单控件
+  - 实时预览完整命令行
+  - 提供选项的详细说明
 - 实时显示命令执行输出
 - 支持标准输入
-- 支持命令行参数的可视化配置
 - 响应式设计，支持移动设备
 
 ## 实现思路
 
 1. **命令解析**
-   - 使用 subprocess 执行命令的 --help 选项获取帮助信息
+   - 优先使用 man 手册获取命令帮助信息
+   - 如果 man 手册不可用，回退到使用 --help
    - 通过正则表达式解析帮助信息，提取命令选项
-   - 自动识别选项类型（标志、值等）
+   - 自动识别选项类型：
+     - 标志选项（不需要参数）
+     - 文本输入选项
+     - 数字输入选项
+     - 选择列表选项（带有预定义的有效值）
 
-2. **Web 界面**
+2. **选项处理**
+   - 智能参数识别：
+     - 识别必需参数和可选参数（如 --option=VALUE 和 --option[=VALUE]）
+     - 从描述中提取有效值列表
+     - 根据参数名和描述判断参数类型
+     - 处理可选参数标记
+
+3. **Web 界面**
    - 使用 Flask 作为 Web 框架
    - 使用 Socket.IO 实现实时输出
    - 采用响应式设计，提供良好的移动端体验
-
-3. **命令执行**
-   - 使用 subprocess 异步执行命令
-   - 通过线程管理命令执行和输出
-   - 支持实时输出和错误处理
 
 ## 安装部署
 
 ### 方法一：从 PyPI 安装（推荐）
 
 ```bash
-pip install cli2web
+pip install cli2webui
 ```
 
-安装完成后可以直接使用 `cli2web` 命令：
+安装完成后可以直接使用 `cli2webui` 命令：
 ```bash
-cli2web <command_name>
+cli2webui <command_name>
 ```
 
 ### 方法二：从源码安装
@@ -81,12 +96,12 @@ pip install -r requirements.txt
 
 基本用法：
 ```bash
-cli2web <command_name>
+cli2webui <command_name>
 ```
 
 完整选项：
 ```bash
-cli2web [-h] [--host HOST] [--port PORT] command
+cli2webui [-h] [--host HOST] [--port PORT] command
 
 位置参数:
   command            要转换的命令行工具名称
@@ -100,37 +115,37 @@ cli2web [-h] [--host HOST] [--port PORT] command
 示例：
 ```bash
 # 使用默认配置
-cli2web ls
+cli2webui ls
 
 # 指定端口
-cli2web --port 8080 ls
+cli2webui --port 8080 ls
 
 # 指定主机和端口
-cli2web --host 0.0.0.0 --port 8080 ls
+cli2webui --host 0.0.0.0 --port 8080 ls
 ```
 
 ### 2. 作为 Python 模块使用（开发环境）
 
 基本用法：
 ```bash
-python -m cli2web <command_name>
+python -m cli2webui <command_name>
 ```
 
 完整选项：
 ```bash
-python -m cli2web [-h] [--host HOST] [--port PORT] command
+python -m cli2webui [-h] [--host HOST] [--port PORT] command
 ```
 
 示例：
 ```bash
 # 使用默认配置
-python -m cli2web ls
+python -m cli2webui ls
 
 # 指定端口
-python -m cli2web --port 8080 ls
+python -m cli2webui --port 8080 ls
 
 # 指定主机和端口
-python -m cli2web --host 0.0.0.0 --port 8080 ls
+python -m cli2webui --host 0.0.0.0 --port 8080 ls
 ```
 
 ### 3. 访问 Web 界面
@@ -253,3 +268,38 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## 使用示例
+
+### 基本用法
+
+```bash
+# 启动 ls 命令的 Web 界面
+cli2webui ls
+
+# 指定端口
+cli2webui --port 8080 ls
+
+# 指定主机和端口
+cli2webui --host 0.0.0.0 --port 8080 ls
+```
+
+### 选项示例
+
+以 ls 命令为例，CLI2Web 会正确解析并处理以下类型的选项：
+
+1. 标志选项：
+```bash
+-a, --all                  不隐藏任何以 . 开始的项目
+```
+
+2. 带必需参数选项：
+```bash
+--block-size=SIZE         指定块大小
+--time=WORD              指定时间类型（可选值：atime, access, use, ctime, status）
+```
+
+3. 带可选参数选项：
+```bash
+--color[=WHEN]           控制是否使用颜色（可选值：always, auto, never）
+```
